@@ -31,8 +31,31 @@ class QuestionsAndAnswersService:
 
 
     @staticmethod
-    def get_all_questions_and_answers():
-        return QuestionsAndAnswers.get_all_questions_and_answers()
+    def get_all_questions_and_answers(search=None):
+        return QuestionsAndAnswersService.serialize_questions_and_answers(
+            QuestionsAndAnswers.get_all_questions_and_answers(search)
+        )
+    
+    @staticmethod
+    def get_question_and_answer_by_id(id:int):
+        return QuestionsAndAnswers.get_question_and_answer_by_id(id)
+    
+    @staticmethod
+    def delete_question_and_answer(id: int) -> bool:
+        question_and_answer = QuestionsAndAnswers.get_question_and_answer_by_id(id)
+        if question_and_answer:
+            question_and_answer.delete()
+            return True
+        return False
+    
+    @staticmethod
+    def delete_all_questions_and_answers():
+        QuestionsAndAnswers.delete_all_questions_and_answers()
+
+    @staticmethod
+    def serialize_question_and_answer(question_and_answer):
+        schema = QuestionsAndAnswersSchema()
+        return schema.dump(question_and_answer)
 
     @staticmethod
     def serialize_questions_and_answers(questions_and_answers):

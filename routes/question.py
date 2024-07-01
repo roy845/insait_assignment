@@ -1,7 +1,6 @@
 from flask_restx import Namespace, Resource,fields
-from flask import jsonify, request
+from flask import request
 from pydantic import ValidationError
-from models.QuetionsAndAnswers import QuestionsAndAnswersSchema
 from schemas.QuestionSchema import QuestionSchema
 from http import HTTPStatus
 from services.QuestionsAndAnswersService import QuestionsAndAnswersService
@@ -13,6 +12,62 @@ ask_model = question_api.model('Ask', {
     'question': fields.String(required=True, description='The question to ask')
 })
 
+
+
+@question_api.route('/')
+class GetAllQuestionsAndAnswers(Resource):
+    @question_api.doc(
+        responses={HTTPStatus.OK: 'List of all questions and answers',HTTPStatus.INTERNAL_SERVER_ERROR:"Internal Server Error"})
+    def get(self):
+        try:
+           search = request.args.get('search')
+           questions_and_answers = QuestionsAndAnswersService.get_all_questions_and_answers(search)
+           return questions_and_answers, HTTPStatus.OK
+    
+        except Exception as e:
+            return {'error': str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
+        
+    @question_api.doc(
+        responses={
+            HTTPStatus.NO_CONTENT: 'All questions and answers deleted successfully',
+            HTTPStatus.INTERNAL_SERVER_ERROR: "Internal Server Error"
+        }
+    )
+    def delete(self):
+        try:
+            QuestionsAndAnswersService.delete_all_questions_and_answers()
+            return '', HTTPStatus.NO_CONTENT
+        except Exception as e:
+            return {'error': str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR 
+
+
+@question_api.route('/<int:id>')
+class GetQuestionAndAnswerById(Resource):
+    @question_api.doc(
+        params={'id': 'The ID of the question and answer'},
+        responses={HTTPStatus.OK: 'The specific question and answer', 
+                   HTTPStatus.NOT_FOUND: 'Question and answer not found', 
+                   HTTPStatus.INTERNAL_SERVER_ERROR: "Internal Server Error"})
+    def get(self, id):
+        try:
+            question_and_answer = QuestionsAndAnswersService.get_question_and_answer_by_id(id)
+            if question_and_answer is None:
+                return {'message': 'Question and answer not found'}, HTTPStatus.NOT_FOUND
+
+            question_and_answer_json = QuestionsAndAnswersService.serialize_question_and_answer(question_and_answer)
+            return question_and_answer_json, HTTPStatus.OK
+        except Exception as e:
+            return {'error': str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
+    
+    def delete(self, id):
+        try:
+            deleted = QuestionsAndAnswersService.delete_question_and_answer(id)
+            if not deleted:
+                return {'message': 'Question and answer not found'}, HTTPStatus.NOT_FOUND
+
+            return '', HTTPStatus.NO_CONTENT
+        except Exception as e:
+            return {'error': str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
 
 @question_api.route('/ask')
 class Ask(Resource):
@@ -36,15 +91,4 @@ class Ask(Resource):
         except Exception as e:
             return {'error': str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
 
-@question_api.route('/')
-class GetAllQuestionsAndAnswers(Resource):
-    @question_api.doc(
-        responses={HTTPStatus.OK: 'List of all questions and answers',HTTPStatus.INTERNAL_SERVER_ERROR:"Internal Server Error"})
-    def get(self):
-        try:
-           questions_and_answers = QuestionsAndAnswersService.get_all_questions_and_answers()
-           questions_and_answers_json = QuestionsAndAnswersService.serialize_questions_and_answers(questions_and_answers)
-           return questions_and_answers_json, HTTPStatus.OK
-    
-        except Exception as e:
-            return {'error': str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
+

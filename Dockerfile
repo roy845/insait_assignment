@@ -14,4 +14,4 @@ EXPOSE 5000
 
 ENV FLASK_ENV=development
 
-CMD ["python", "main.py", "--host=0.0.0.0"]
+CMD ["python", "app.py", "--host=0.0.0.0"]
