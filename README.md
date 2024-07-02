@@ -98,6 +98,8 @@ POSTGRES_DB=QuestionsAndAnswers
 
    docker run --name chatgpt_c -p 5000:5000 -d chatgpt using the terminal in VSCODE.
 
+   ### After all of that go to http://localhost:5000/ to view the frontend and start making request from there or use the swagger docs found at:http://localhost:5000/api/docs
+
 ## Features
 
 ### Ask Question
