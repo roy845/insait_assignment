@@ -58,7 +58,12 @@ class GetQuestionAndAnswerById(Resource):
             return question_and_answer_json, HTTPStatus.OK
         except Exception as e:
             return {'error': str(e)}, HTTPStatus.INTERNAL_SERVER_ERROR
-    
+        
+    @question_api.doc(
+    params={'id': 'The ID of the question and answer'},
+        responses={HTTPStatus.NO_CONTENT: 'Question and answer deleted', 
+                   HTTPStatus.NOT_FOUND: 'Question and answer not found', 
+                   HTTPStatus.INTERNAL_SERVER_ERROR: "Internal Server Error"})
     def delete(self, id):
         try:
             deleted = QuestionsAndAnswersService.delete_question_and_answer(id)
