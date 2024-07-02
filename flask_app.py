@@ -5,7 +5,7 @@ from config import settings
 from routes.question import question_api as question_namespace
 from routes.health import health_api as health_namespace
 from database import db
-# from utils.create_database import create_database
+from utils.create_database import create_database
 from flask_cors import CORS
 
 logger = logging.getLogger(__name__)
@@ -13,12 +13,12 @@ logger = logging.getLogger(__name__)
 def create_app(testing: bool = False):
     logger.info("Initializing Flask app.....")
 
-    # DATABASE_URL: str = settings.database_test_url if testing else settings.database_prod_url
+    DATABASE_URL: str = settings.database_test_url if testing else settings.database_prod_url
 
-    # database_url = DATABASE_URL.rsplit('/', 1)[0]
-    # database_name = DATABASE_URL.rsplit('/', 1)[-1]
+    database_url = DATABASE_URL.rsplit('/', 1)[0]
+    database_name = DATABASE_URL.rsplit('/', 1)[-1]
 
-    # create_database(database_url, database_name)
+    create_database(database_url, database_name)
 
     app = Flask(__name__,static_folder='build', static_url_path='')
     
