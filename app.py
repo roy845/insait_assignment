@@ -1,4 +1,6 @@
+from http import HTTPStatus
 import logging
+from pydantic import ValidationError
 from flask_app import create_app
 import os
 from flask import send_from_directory
@@ -20,6 +22,13 @@ if __name__ == '__main__':
     def serve_static(folder, file):
         path = os.path.join('build', 'static', folder, file)
         return send_from_directory(directory=os.path.dirname(path), path=os.path.basename(path))
+
+    @app.errorhandler(Exception)
+    def handle_exception(e):
+        if isinstance(e, ValidationError):
+            return ({'errors': e.errors()}), HTTPStatus.BAD_REQUEST
+       
+        return ({'error': str(e)}), HTTPStatus.INTERNAL_SERVER_ERROR
     
     @app.errorhandler(404)
     def not_found(e):
